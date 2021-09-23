@@ -57,6 +57,8 @@ class Linear:
         # TODO: Implement the forward pass.                                         #
         #    HINT: You may want to flatten the input first                          #
         #############################################################################
+        x_f = np.reshape(x, (x.shape[0], self.in_dim))
+        out = (x_f @ self.weight) + self.bias
 
         #############################################################################
         #                              END OF YOUR CODE                             #
@@ -74,6 +76,11 @@ class Linear:
         #############################################################################
         # TODO: Implement the linear backward pass.                                 #
         #############################################################################
+
+        x_f = np.reshape(x, (x.shape[0], self.in_dim))
+        self.dw = x_f.T @ dout
+        self.db = np.sum(dout, axis=0)
+        self.dx = np.reshape(dout @ self.weight.T, (x.shape))
 
         #############################################################################
         #                              END OF YOUR CODE                             #
