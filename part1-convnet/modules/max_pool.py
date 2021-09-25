@@ -46,7 +46,25 @@ class MaxPooling:
         # Hint:                                                                     #
         #       1) You may implement the process with loops                         #
         #############################################################################
+        N = x.shape[0]
+        C = x.shape[1]
+        H = x.shape[2]
+        W = x.shape[3]
+        H_out = int((H - self.kernel_size) / self.stride) + 1
+        W_out = int((W - self.kernel_size) / self.stride) + 1
+        out = np.zeros((N, C, H_out, W_out))
 
+        for h_axis in range(H_out):
+            for w_axis in range(W_out):
+                h_start = self.stride * h_axis
+                h_end = self.kernel_size + (h_axis * self.stride)
+
+                w_start = self.stride * w_axis
+                w_end = self.kernel_size + (w_axis * self.stride)
+
+                # slice out array to max in it
+                pool_slice = x[:, :, h_start:h_end, w_start:w_end]
+                out[:, :, h_axis, w_axis] = np.max(pool_slice, axis=(-1, -2))
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -66,7 +84,24 @@ class MaxPooling:
         #       1) You may implement the process with loops                     #
         #       2) You may find np.unravel_index useful                             #
         #############################################################################
+        dx = np.zeros_like(x)
+        N = x.shape[0]
+        C = x.shape[1]
+        for h_axis in range(H_out):
+            for w_axis in range(W_out):
+                h_start = self.stride * h_axis
+                h_end = self.kernel_size + (h_axis * self.stride)
 
+                w_start = self.stride * w_axis
+                w_end = self.kernel_size + (w_axis * self.stride)
+
+                for n_axis in range(N):
+                    for c_axis in range(C):
+                        pool_slice = x[n_axis, c_axis, h_start:h_end, w_start:w_end]
+                        ind = np.unravel_index(pool_slice.argmax(axis=None), (pool_slice.shape))
+                        dx[n_axis, c_axis, h_start:h_end, w_start:w_end][ind] = dout[n_axis, c_axis, h_axis, w_axis]
+
+        self.dx = dx
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
