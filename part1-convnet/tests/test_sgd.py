@@ -63,3 +63,4 @@ class TestSGD(unittest.TestCase):
 
         self.assertAlmostEquals(np.sum(np.abs(expected_weights - model.modules[0].weight)), 0, places=6)
         self.assertAlmostEquals(np.sum(np.abs(expected_bias - model.modules[0].bias)), 0)
+

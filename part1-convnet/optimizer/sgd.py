@@ -35,14 +35,15 @@ class SGD(_BaseOptimizer):
         :return: None, but the model weights should be updated
         """
         self.apply_regularization(model)
-
         for idx, m in enumerate(model.modules):
             if hasattr(m, 'weight'):
                 #############################################################################
                 # TODO:                                                                     #
                 #    1) Momentum updates for weights                                        #
                 #############################################################################
-                pass
+                self.grad_tracker[idx]['dw'] = (self.momentum * self.grad_tracker[idx]['dw']) - (self.learning_rate*m.dw)
+                m.weight = m.weight + self.grad_tracker[idx]['dw']
+
                 #############################################################################
                 #                              END OF YOUR CODE                             #
                 #############################################################################
@@ -51,7 +52,8 @@ class SGD(_BaseOptimizer):
                 # TODO:                                                                     #
                 #    1) Momentum updates for bias                                           #
                 #############################################################################
-                pass
+                self.grad_tracker[idx]['db'] = (self.momentum * self.grad_tracker[idx]['db']) - (self.learning_rate * m.db)
+                m.bias = m.bias + self.grad_tracker[idx]['db']
                 #############################################################################
                 #                              END OF YOUR CODE                             #
                 #############################################################################
