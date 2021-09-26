@@ -83,6 +83,6 @@ class TestConv(unittest.TestCase):
 
         dx, dw, db = self._conv_backward(x, w, b, dout, 3, 2, 3, 1, 1)
 
-        self.assertAlmostEquals(rel_error(dx, dx_num), 0, places=6)
-        self.assertAlmostEquals(rel_error(dw, dw_num), 0, places=6)
         self.assertAlmostEquals(rel_error(db, db_num), 0, places=6)
+        self.assertAlmostEquals(rel_error(dw, dw_num), 0, places=6)
+        self.assertAlmostEquals(rel_error(dx, dx_num), 0, places=6)

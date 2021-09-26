@@ -46,13 +46,11 @@ class MaxPooling:
         # Hint:                                                                     #
         #       1) You may implement the process with loops                         #
         #############################################################################
-        N = x.shape[0]
-        C = x.shape[1]
         H = x.shape[2]
         W = x.shape[3]
         H_out = int((H - self.kernel_size) / self.stride) + 1
         W_out = int((W - self.kernel_size) / self.stride) + 1
-        out = np.zeros((N, C, H_out, W_out))
+        out = np.zeros((x.shape[0], x.shape[1], H_out, W_out))
 
         for h_axis in range(H_out):
             for w_axis in range(W_out):

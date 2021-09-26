@@ -22,7 +22,6 @@ prohibited and subject to being investigated as a GT honor code violation.
 
 import numpy as np
 
-
 class Conv2D:
     '''
     An implementation of the convolutional layer. We convolve the input with out_channels different filters
@@ -69,6 +68,27 @@ class Conv2D:
         # Hint: 1) You may use np.pad for padding.                                  #
         #       2) You may implement the convolution with loops                     #
         #############################################################################
+        padded_x = np.pad(x, [(0,), (0,), (self.padding,), (self.padding,)], mode='constant')
+
+        N, _, H, W = x.shape
+        H_out = int((H + (2*self.padding) - self.kernel_size)/self.stride) + 1
+        W_out = int((W + (2*self.padding) - self.kernel_size)/self.stride) + 1
+        out = np.zeros((N, self.out_channels, H_out, W_out))
+
+        for h_axis in range(H_out):
+            for w_axis in range(W_out):
+                h_start = self.stride * h_axis
+                h_end = self.kernel_size + (h_axis * self.stride)
+
+                w_start = self.stride * w_axis
+                w_end = self.kernel_size + (w_axis * self.stride)
+
+                for n_axis in range(N):
+                    volume = padded_x[n_axis, :, h_start:h_end, w_start:w_end]
+                    for o_axis in range(self.out_channels):
+                        weights = self.weight[o_axis, :, :, :]
+                        convolution = np.sum(volume*weights)
+                        out[n_axis, o_axis, h_axis, w_axis] = convolution + self.bias[o_axis]
 
         #############################################################################
         #                              END OF YOUR CODE                             #
@@ -89,7 +109,37 @@ class Conv2D:
         #       1) You may implement the convolution with loops                     #
         #       2) don't forget padding when computing dx                           #
         #############################################################################
+        N, C, H_out, W_out = dout.shape
 
+        padded_x = np.pad(x, [(0,), (0,), (self.padding,), (self.padding,)], mode='constant')
+        padded_dx = np.zeros_like(padded_x)
+
+        dw = np.zeros_like(self.weight)
+        db = np.zeros_like(self.bias)
+
+        for h_axis in range(H_out):
+            for w_axis in range(W_out):
+                h_start = h_axis
+                h_end = self.kernel_size + h_axis
+
+                w_start = w_axis
+                w_end = self.kernel_size + w_axis
+
+                for n_axis in range(N):
+                    for c_axis in range(C):
+                        # Fix the workable frame
+                        framed_output = dout[n_axis, c_axis, h_axis, w_axis]
+
+                        # Update both db and dw
+                        db[c_axis] += framed_output
+                        dw[c_axis, :, :, :] += padded_x[n_axis, :, h_start:h_end, w_start:w_end] * framed_output
+
+                        # Update padded dx
+                        padded_dx[n_axis, :, h_start:h_end, w_start:w_end] += framed_output*self.weight[c_axis, :, :, :]
+
+        self.dx = padded_dx[:, :, self.padding:-self.padding, self.padding:-self.padding]
+        self.dw = dw
+        self.db = db
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
